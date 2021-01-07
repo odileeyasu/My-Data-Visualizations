@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="https://d3js.org/d3.v6.js"></script>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Open+Sans+Condensed:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+    </head>
+    <style>
+        .yAxis {font-family: sans-serif;
+                font-size: 12px;
+                font-weight: 500;}
+        .title {font-family: 'Open Sans Condensed', serif;
+                fill: #309774;
+                font-size: 50px;
+                font-weight: 700;}
+        .subtitle {font-family: Lora, serif;
+                   font-weight:500;
+                   fill: black;}
+    
+    </style>
+    <body>
+        <script>
+            // set svg
+            var svg = d3
+                .select('body')
+                .append('svg')
+                .attr('width', '1400')
+                .attr('height', '730');
+            
+            
+            
+            // set canvas margins
+            var margin = {top: 30, right: 0, bottom: 100, left: 550};
+            
+            // create title and subtitle group
+            var title = svg
+                .append('g')
+                .attr('class','title')
+            var subtitle = svg
+                .append('g')
+                .attr('class','subtitle');
+            
+            // create grid lines
+            var grid = svg.append('g')
+                .attr('class','grid')
+                .attr("transform", `translate (${margin.left}, ${margin.top})`);
+            
+            // data for education and industry
+            var educationdata = [40000,50000,49000,60000,70000,50000];
+            
+            var educationlabelsLine1 = ['High School', "Some College",
+                               "Associate's", "Bachelor's",
+                               "More than a","Don't know"];
+            var educationlabelsLine2 = ['Diploma','','Degree','Degree',"Bachelor's"]
+            var educationlabelsLine3 = ['Equivalent,','','','','Degree']
+            var educationlabelsLine4 = ['or Less']
+            var industrydata = [40000,45000,50000,56000,56000,60000,60000,70000,75000,50000];
+            
+            
+
+            var industrylabelsLine1 = ['Service','Education', 'Military', 'Arts and','Trades','Other', 'Healthcare', 'Business', 
+                                'STEM', "Don't Know"];
+            var industrylabelsLine2 = ['','','and','Entertain-','and','','','and']
+            var industrylabelsLine3 = ['','','Protective','ment','Technical','','','Management']
+            var industrylabelsLine4 = ['','','Serivices']
+            
+            // create xlabels group
+            var xlabels = svg
+                .append('g')
+                .attr('id','xlabels');
+            
+            // set scales and axes
+            var xScale = d3.scaleBand()
+                .domain(d3.range(educationdata.length))
+                .range([0,850])
+                .paddingInner(.2);
+            var yScale = d3.scaleLinear()
+                .domain([0,90000])
+                .range([600,0]);
+            var xAxis = d3.axisBottom()
+                .scale(xScale)
+                .tickValues([]);
+            var yAxis = d3.axisLeft()
+                .scale(yScale)
+                .tickValues([0,10000,20000,30000,40000,50000,60000,70000,80000])
+                .tickFormat(function(n){
+                    if (n!= 0){
+                        return '$'+n/1000+'k';
+                    }
+                    else {
+                        return n;
+                    }
+                });
+            
+            // append background for plot
+            svg
+                .append("rect")
+                .attr('id','background')
+                .attr('fill','grey')
+                .attr('opacity','.1')
+                .attr('width', '1400')
+                .attr('height','7300')
+                .attr('x', '0')
+                .attr('y', '0');
+            
+            // add title
+            title.append('text')
+                .text('HOW DO')
+                .attr('x','30')
+                .attr('y','90')
+            title.append('text')
+                .text('EARNING')
+                .attr('x','210')
+                .attr('y','90')
+                .attr('fill','#927341')
+            title.append('text')
+                .text('EXPECTATIONS')
+                .attr('x','30')
+                .attr('y','150')
+            title.append('text')
+                .text('VARY BY')
+                .attr('x','30')
+                .attr('y','210')
+            title.append('text')
+                .text('EDUCATIONAL')
+                .attr('x','203')
+                .attr('y','210')
+                .attr('fill','#927341')
+            title.append('text')
+                .text('AND')
+                .attr('x','30')
+                .attr('y','270')
+            title.append('text')
+                .text('OCCUPATIONAL')
+                .attr('x','128')
+                .attr('y','270')
+                .attr('fill','#927341')
+            title.append('text')
+                .text('EXPECTATIONS?')
+                .attr('x','30')
+                .attr('y','330')
+            
+            
+            // add subtitle texts and elements
+            subtitle
+                .append('text')
+                .text('Click one of the two options below to see')
+                .attr('font-family', 'Lora')
+                .attr('font-size', '18')
+                .attr('font-weight','400')
+                .attr('x', '30')
+                .attr('y','400');
+            subtitle
+                .append('text')
+                .text('the median expected yearly earnings')
+                .attr('font-family', 'Lora')
+                .attr('font-size', '18')
+                .attr('font-weight','800')
+                .attr('x', '30')
+                .attr('y','430');
+            subtitle
+                .append('text')
+                .text('at age 30 of 2009 ninth-graders,')
+                .attr('font-family', 'Lora')
+                .attr('font-weight','800')
+                .attr('font-size', '18')
+                .attr('x', '30')
+                .attr('y','460');
+            
+            
+            // add grid lines
+            grid.selectAll('line')
+                .data([10000,20000,30000,40000,50000,60000,70000,80000])
+                .enter()
+                .append('line')
+                .attr('x1',0)
+                .attr('x2',855)
+                .attr('y1',d=>yScale(d)+0.5)
+                .attr('y2',d=>yScale(d)+0.5)
+                .attr('stroke','black')
+                .attr('opacity',0.3);
+            
+            // set up buttons
+            var buttons = svg.append('g')
+                .attr('id','buttons');
+
+            var button2 = svg.append('g')
+                .attr('id','button2')
+
+            buttons
+                .append('circle')
+                .attr('id','education')
+                .attr('r','5')
+                .attr('cx', '30')
+                .attr('cy', '495')
+                .attr('fill','#309774')
+                .attr('opacity','1');
+            
+            buttons
+                .append('circle')
+                .attr('id','industry')
+                .attr('r','5')
+                .attr('cx', '30')
+                .attr('cy', '535')
+                .attr('fill','#309774')
+                .attr('opacity','1');
+            
+            buttons
+                .append('text')
+                .attr('id','education')
+                .text('by 2016 highest level of education expected')
+                .attr('font-family', 'Lora')
+                .attr('font-weight','800')
+                .attr('font-size', '18')
+                .attr('x', '45')
+                .attr('y', '500');
+            // subtitle
+            //     .append('text')
+            //     .text('}')
+            //     .attr('font-size', '50')
+            //     .attr('x', '420')
+            //     .attr('y', '625');           
+            buttons
+                .append('text')
+                .attr('id','industry')
+                .text('by 2016 planned job industry at age 30')
+                .attr('font-family', 'Lora')
+                .attr('font-size', '18')
+                .attr('x', '45')
+                .attr('y', '540');
+            
+            // add interactive underline
+            buttons.append('line')
+                .attr('id','education')
+                .attr('x1', '45')
+                .attr('y1','510')
+                .attr('x2', '415')
+                .attr('y2','510')
+                .attr('stroke', '#309774')
+                .attr('stroke-width','5')
+                .attr('opacity',1);
+            
+            buttons.append('line')
+                .attr('id','industry')
+                .attr('x1', '45')
+                .attr('y1','550')
+                .attr('x2', '375')
+                .attr('y2','550')
+                .attr('stroke', '#309774')
+                .attr('stroke-width','5')
+                .attr('opacity','0');
+            
+            // showing or hiding median line
+            button2.append('text')
+                .text('Showing the Overall Median Expected Yearly Earnings')
+                .attr('font-family', 'Lora')
+                .attr('font-size', '17')
+                .attr('font-weight','500')
+                .attr('x', '62')
+                .attr('y', '629')
+
+            button2.append('rect')
+                .attr('id','outer')
+                .attr('stroke','green')
+                .attr('stroke-width','5')
+                .attr('height','20')
+                .attr('width','20')
+                .attr('fill','white')
+                .attr('x', '30')
+                .attr('y', '613')
+            
+            button2.append('rect')
+                .attr('id','inner')
+                .attr('stroke','green')
+                .attr('stroke-width','3')
+                .attr('height','10')
+                .attr('width','10')
+                .attr('fill','green')
+                .attr('opacity',0)
+                .attr('x', '35')
+                .attr('y', '618')
+            
+            
+            // click event of showing and hiding median
+            svg.select('#button2').selectAll('rect')
+                .on('click', function() {
+                    button = svg.select('#button2').select('rect#inner');
+                    if (button.attr('opacity')==0){
+                        button.attr('opacity',1);
+                        median.selectAll('line').attr('opacity',1)
+                        median.selectAll('text').attr('opacity',1)
+                    }
+                    else {
+                        button.attr('opacity',0);
+                        median.selectAll('line').attr('opacity',0)
+                        median.selectAll('text').attr('opacity',0)
+                    }
+                });
+
+            
+            
+            // line on mouseover
+            svg.select('#buttons').selectAll('text')
+                .on('mouseenter', function(){
+                    var buttonID = d3.select(this).attr('id');
+
+                    if (buttonID == 'industry') {
+                        // check if already selected
+                        if (svg.select('#buttons').select('line#industry').attr('opacity') == '0') {
+                            svg.select('#buttons').select('line#industry')
+                                .attr('opacity','0.2');
+                        }
+                        
+                    }
+                    else {
+                        // check if already selected
+                        if (svg.select('#buttons').select('line#education').attr('opacity') == '0') {
+                            svg.select('#buttons').select('line#education')
+                                .attr('opacity','0.2');
+                        }
+                    }
+                });
+            // line on mouseout
+            svg.select('#buttons').selectAll('text')
+                .on('mouseleave', function(){
+                    var buttonID = d3.select(this).attr('id');
+                    if (buttonID == 'industry') {
+                        // check if already selected
+                        if (svg.select('#buttons').select('line#industry').attr('opacity') != 1) {
+                            svg.select('#buttons').select('line#industry')
+                                .attr('opacity','0');
+                        }
+                        
+                    }
+                    else {
+                        // check if already selected
+                        if (svg.select('#buttons').select('line#education').attr('opacity') != 1) {
+                            svg.select('#buttons').select('line#education')
+                                .attr('opacity','0');
+                        }
+                    }
+
+                });
+            
+            
+            // append bars
+            var bars = svg.append('g')
+                .attr('id','plot')
+                .attr("transform", `translate (${margin.left}, ${margin.top})`)
+                
+            bars
+                .selectAll('rect')
+                .data(educationdata)
+                .enter()
+                .append('rect')
+                .attr('id',(d,i) => 'n'+i)
+                .attr('fill','#43C393')
+                .attr('x',(d,i)=>xScale(i))
+                .attr('y',600)
+                .attr('height', 0)
+                .attr('width',xScale.bandwidth())
+                .transition()
+                .duration(1000)
+                .attr('y',d=>yScale(d))
+                .attr('height', d=>600-yScale(d))
+                .attr('width',xScale.bandwidth());
+            
+            // add data labels
+            bars.selectAll('text')
+                .data(educationdata)
+                .enter()
+                .append('text')
+                .attr('id',(d,i) => 'n'+i)
+                .attr('fill', 'white')
+                .attr('font-family', 'Lora')
+                .attr('font-size','15')
+                .attr('font-weight','600')
+                .text(d=>'$'+d/1000+','+'000')
+                .attr('text-anchor','middle')
+                .attr('x', (d,i)=>xScale(i)+xScale.bandwidth()/2)
+                .attr('y',500)
+                .transition()
+                .duration(1000)
+                .attr('y',d=>yScale(d)+20)
+            
+            // add horizontal lines
+            bars.selectAll('line')
+                .data(educationdata)
+                .enter()
+                .append('line')
+                .attr('id',(d,i) => 'n'+i)
+                .attr('x1',0)
+                .attr('x2',855)
+                .attr('y1',d=>yScale(d)+0.5)
+                .attr('y2',d=>yScale(d)+0.5)
+                .attr('stroke','#673A13')
+                .attr('stroke-dasharray',(3,10))
+                .attr('stroke-width','3')
+                .attr('opacity',0.0);
+            
+            // add axes
+            svg.append("g")
+                .attr("class", "xAxis")
+                .attr("transform", `translate (${margin.left}, ${730 - margin.bottom})`)
+                .call(xAxis);
+            svg.append("g")
+                .attr("class", "yAxis")
+                .attr("transform", `translate (${margin.left}, ${margin.top})`)
+                .call(yAxis);
+            
+            
+            svg.append('line')
+                .attr('x1','30')
+                .attr('x2','480')
+                .attr('y1','30')
+                .attr('y2','30')
+                .attr('stroke','#309774')
+                .attr('stroke-width','8')
+            svg.append('line')
+                .attr('x1','515')
+                .attr('x2','1400')
+                .attr('y1','30')
+                .attr('y2','30')
+                .attr('stroke','#43C393')
+                .attr('stroke-width','8')
+            
+            // add x axis labels for education
+            xlabels
+                .append('g')
+                .attr('id','line1')
+                .selectAll("text")
+                .data(educationlabelsLine1)
+                .enter()
+                .append('text')
+                .text(d=>d)
+                .attr('x', (d,i)=>xScale(i)+610)
+                .attr('y', '650')
+                .attr('text-anchor','middle')
+                .attr('font-family','sans-serif')
+                .attr('font-size','13');
+            xlabels
+                .append('g')
+                .attr('id','line2')
+                .selectAll("text")
+                .data(educationlabelsLine2)
+                .enter()
+                .append('text')
+                .text(d=>d)
+                .attr('x', (d,i)=>xScale(i)+610)
+                .attr('y', '665')
+                .attr('text-anchor','middle')
+                .attr('font-family','sans-serif')
+                .attr('font-size','13');
+            xlabels
+                .append('g')
+                .attr('id','line3')
+                .selectAll("text")
+                .data(educationlabelsLine3)
+                .enter()
+                .append('text')
+                .text(d=>d)
+                .attr('x', (d,i)=>xScale(i)+610)
+                .attr('y', '680')
+                .attr('text-anchor','middle')
+                .attr('font-family','sans-serif')
+                .attr('font-size','13');
+            xlabels
+                .append('g')
+                .attr('id','line4')
+                .selectAll("text")
+                .data(educationlabelsLine4)
+                .enter()
+                .append('text')
+                .text(d=>d)
+                .attr('x', (d,i)=>xScale(i)+610)
+                .attr('y', '695')
+                .attr('text-anchor','middle')
+                .attr('font-family','sans-serif')
+                .attr('font-size','13');
+
+            // set median line
+            median = svg.append('g').attr('id','median')
+            .attr("transform", `translate (${margin.left}, ${margin.top})`);
+            median.append('line')
+            .attr('x1',xScale(0))
+            .attr('x2',2000)
+            .attr('y1',yScale(60000))
+            .attr('y2',yScale(60000))
+            .attr('stroke','#927341')
+            .attr('stroke-width','3')
+            .attr('opacity',0);
+
+            median.append('text')
+            .attr('x',xScale(0)+5)
+            .attr('y',yScale(60000)-10)
+            .attr('text-anchor','bottom')
+            .text('Median: $60,000')
+            .attr('fill','#927341')
+            .attr('font-family','Lora')
+            .attr('font-size','16')
+            .attr('font-weight','600')
+            .attr('opacity',0)
+
+            function update(data){
+                // change xScale
+                xScale.domain(d3.range(data.length));
+                
+                // update bars
+                var nbars = svg.select('g#plot').selectAll('rect')
+                    .data(data);
+                
+                nbars.enter()
+                    .append('rect')
+                    .attr('id', (d,i)=>'n'+i)
+                    .attr('fill','#43C393')
+                    .attr('opacity', '0.0')
+                    .attr('y',600)
+                    .attr('x',800)
+                    .attr('height', 0)
+                    .attr('width',xScale.bandwidth())
+                .merge(nbars)  // merge with old bars
+                    .transition() // add transition
+                    .duration(1)
+                    .attr('fill','#43C393')
+                    .attr('opacity', '0.0')
+                    .transition() // add transition
+                    .duration(100)
+                    .attr('x',(d,i)=>xScale(i))
+                    .attr('y',d=>yScale(d))
+                    .attr('height', d=>600-yScale(d))
+                    .attr('width',xScale.bandwidth())
+                    .transition() // add transition
+                    .duration(600)
+                    .attr('fill','#43C393')
+                    .attr('opacity', '1.0');
+                    
+                nbars
+                    .exit()
+                    .transition()
+                    .duration(1)
+                    .remove();
+            
+                // append new data labels
+                ntext = bars.selectAll('text')
+                    .data(data)
+                ntext
+                    .enter()
+                    .append('text')
+                    .text(d=>'$'+d/1000+','+'000')
+                    .attr('fill','white')
+                    .attr('opacity','0')
+                    .attr('x',(d,i)=>xScale(i))
+                    .attr('y',d=>yScale(d))
+                .merge(ntext)
+                    .transition()
+                    .duration(1)
+                    .attr('id',(d,i) => 'n'+i)
+                    .attr('fill', 'white')
+                    .attr('font-family', 'Lora')
+                    .attr('font-size','15')
+                    .attr('font-weight','600')
+                    .text(d=>'$'+d/1000+','+'000')
+                    .attr('text-anchor','middle')
+                    .attr('x', (d,i)=>xScale(i)+xScale.bandwidth()/2)
+                    .attr('y',d=>yScale(d)+20)
+                    .attr('opacity','0')
+                    .transition()
+                    .duration(600)
+                    .attr('opacity',1);
+                    
+                ntext.exit().transition().duration(1).remove();
+                
+                // lines
+                svg.select("g#plot").selectAll("line").remove();
+                nlines = bars.selectAll('lines').data(data)
+
+                nlines.enter()
+                    .append('line')
+                    .attr('id',(d,i) => 'n'+i)
+                    .attr('x1',0)
+                    .attr('x2',900)
+                    .attr('y1',d=>yScale(d)+0.5)
+                    .attr('y2',d=>yScale(d)+0.5)
+                    .attr('stroke','#673A13')
+                    .attr('stroke-dasharray',(3,10))
+                    .attr('stroke-width','3')
+                    .attr('opacity',0.0);
+
+                // add new x labels
+                if (data.length == 6) {
+                    xlabels1 = xlabels.select('#line1').selectAll('text')
+                    .data(educationlabelsLine1);
+                
+                    xlabels1.enter()
+                        .append('text')
+                        .merge(xlabels1)
+                        .text('')
+                        .transition()
+                        .duration(0)
+                        .text(d=>d)
+                        .attr('x', (d,i)=>xScale(i)+610)
+                        .attr('y', '650')
+                        .attr('text-anchor','middle')
+                        .attr('font-family','sans-serif')
+                        .attr('font-size','13').attr('opacity','0.0')
+                        .transition()
+                        .duration(1000)
+                        .attr('opacity','1');
+                    
+                    xlabels1.exit().remove();
+                    
+                    nxlabels2 = xlabels.select('#line2').selectAll('text')
+                        .data(educationlabelsLine2);
+                    nxlabels2.enter()
+                        .append('text')
+                        .merge(nxlabels2)
+                        .text('')
+                        .transition()
+                        .duration(0)
+                        .text(d=>d)
+                        .attr('x', (d,i)=>xScale(i)+610)
+                        .attr('y', '665')
+                        .attr('text-anchor','middle')
+                        .attr('font-family','sans-serif')
+                        .attr('font-size','13').attr('opacity','0.0')
+                        .transition()
+                        .duration(1000)
+                        .attr('opacity','1');
+                    nxlabels2.exit().remove();
+                    
+                    nxlabels3 = xlabels.select('#line3').selectAll('text')
+                        .data(educationlabelsLine3);
+                    nxlabels3.enter()
+                        .append('text')
+                        .merge(nxlabels3)
+                        .text('')
+                        .transition()
+                        .duration(0)
+                        .text(d=>d)
+                        .attr('x', (d,i)=>xScale(i)+610)
+                        .attr('y', '680')
+                        .attr('text-anchor','middle')
+                        .attr('font-family','sans-serif')
+                        .attr('font-size','13').attr('opacity','0.0')
+                        .transition()
+                        .duration(1000)
+                        .attr('opacity','1');
+                    nxlabels3.exit().remove();
+                    
+                    nxlabels4 = xlabels.select('#line4').selectAll('text')
+                        .data(educationlabelsLine4);
+                    nxlabels4.enter()
+                        .append('text')
+                        .merge(nxlabels4)
+                        .text('')
+                        .transition()
+                        .duration(0)
+                        .text(d=>d)
+                        .attr('x', (d,i)=>xScale(i)+610)
+                        .attr('y', '695')
+                        .attr('text-anchor','middle')
+                        .attr('font-family','sans-serif')
+                        .attr('font-size','13').attr('opacity','0.0')
+                        .transition()
+                        .duration(1000)
+                        .attr('opacity','1');
+                    nxlabels4.exit().remove();
+                }
+                else {
+                    nxlabels1 = xlabels.select('#line1').selectAll('text')
+                    .data(industrylabelsLine1);
+                
+                    nxlabels1.enter()
+                        .append('text')
+                        .merge(nxlabels1)
+                        .text('')
+                        .transition()
+                        .duration(0)
+                        .text(d=>d)
+                        .attr('x', (d,i)=>xScale(i)+550+xScale.bandwidth()/2)
+                        .attr('y', '650')
+                        .attr('text-anchor','middle')
+                        .attr('font-family','sans-serif')
+                        .attr('font-size','13')
+                        .attr('opacity','0.0')
+                        .transition()
+                        .duration(1000)
+                        .attr('opacity','1');
+                    
+                    nxlabels1.exit().remove();
+                    
+                    nxlabels2 = xlabels.select('#line2').selectAll('text')
+                        .data(industrylabelsLine2);
+                    nxlabels2.enter().append('text')
+                        .merge(nxlabels2)
+                        .text('')
+                        .transition()
+                        .duration(0)
+                        .text(d=>d)
+                        .attr('x', (d,i)=>xScale(i)+550+xScale.bandwidth()/2)
+                        .attr('y', '665')
+                        .attr('text-anchor','middle')
+                        .attr('font-family','sans-serif')
+                        .attr('font-size','13').attr('opacity','0.0')
+                        .transition()
+                        .duration(1000)
+                        .attr('opacity','1');
+                    nxlabels2.exit().remove();
+                    
+                    nxlabels3 = xlabels.select('#line3').selectAll('text')
+                        .data(industrylabelsLine3);
+                    nxlabels3.enter().append('text')
+                        .merge(nxlabels3)
+                        .text('')
+                        .transition()
+                        .duration(0)
+                        .text(d=>d)
+                        .attr('x', (d,i)=>xScale(i)+550+xScale.bandwidth()/2)
+                        .attr('y', '680')
+                        .attr('text-anchor','middle')
+                        .attr('font-family','sans-serif')
+                        .attr('font-size','13').attr('opacity','0.0')
+                        .transition()
+                        .duration(1000)
+                        .attr('opacity','1');
+                    nxlabels3.exit().remove();
+                    
+                    nxlabels4 = xlabels.select('#line4').selectAll('text')
+                        .data(industrylabelsLine4);
+                    nxlabels4.enter().append('text')
+                        .merge(nxlabels4)
+                        .text('')
+                        .transition()
+                        .duration(0)
+                        .text(d=>d)
+                        .attr('x', (d,i)=>xScale(i)+550+xScale.bandwidth()/2)
+                        .attr('y', '695')
+                        .attr('text-anchor','middle')
+                        .attr('font-family','sans-serif')
+                        .attr('font-size','13').attr('opacity','0.0')
+                        .transition()
+                        .duration(1000)
+                        .attr('opacity','1');
+                    nxlabels4.exit().remove();
+                    
+                }
+                svg.select('#plot').selectAll('rect')
+                    .on('mouseover', function(){
+                        d3.select(this).attr('fill', '#AAF0D2');
+                        var BarID = d3.select(this).attr('id');
+                        var current = svg.select("#plot").select('text#'+BarID).datum()
+                        svg.select('#plot').select('line#'+BarID)
+                            .attr('opacity',1.0)
+
+                        svg.select("#plot").selectAll('text')
+                        .text((d,i) => {
+                            var divergence = ((d/current-1)*100).toFixed(1);
+                            let textID = 'n'+i
+
+                            let text = ''
+                            if (divergence > 0) {text += '+';}
+                            text += divergence;
+                            text += '%';
+                            
+                            if (textID != BarID) {return text;}
+                            return '';
+                        })
+                    });
+                svg.select('#plot').selectAll('rect')
+                    .on('mouseout', function(){
+                        var BarID = d3.select(this).attr('id');
+                        d3.select(this).attr('fill', '#43C393');
+                        svg.select("#plot").selectAll('text').text(d=>'$'+d/1000+','+'000');
+                        svg.select('#plot').select('line#'+BarID)
+                            .attr('opacity',0.0);
+                    });
+            }
+                
+            
+            // click button actions
+            svg.select('#buttons').selectAll('text')
+                .on("click", function() {
+                    var buttonID = d3.select(this).attr('id');
+                    svg.select("#buttons").selectAll("text")
+                        .attr('font-weight','300')
+                    
+                    if (buttonID == 'industry') {
+                        svg.select("#buttons").select("text#industry")
+                            .attr('font-weight','800')
+                        
+                        // check if already selected
+                        if (svg.select("#buttons").select("line#industry")
+                            .attr('opacity')!=1){
+                                update(industrydata)
+                                svg.select('#buttons').select('line#industry')
+                                .attr('opacity',1);
+                                svg.select('#buttons').select('line#education')
+                                .attr('opacity',0);
+                            }
+                        else {return;}
+                        
+                    }
+                    else {
+                        svg.select("#buttons").select("text#education")
+                            .attr('font-weight','800')
+                        
+                        if (svg.select("#buttons").select("line#education").attr('opacity')!=1) {
+                            update(educationdata)
+                            svg.select('#buttons').select('line#education')
+                                .attr('opacity',1);
+                            svg.select('#buttons').select('line#industry')
+                                .attr('opacity',0);
+                        }
+                        else {return;}
+                        
+                    }
+                });
+
+            
+                
+                svg.select('#plot').selectAll('rect')
+                    .on('mouseover', function(){
+                        d3.select(this).attr('fill', '#AAF0D2');
+                        var BarID = d3.select(this).attr('id')
+                        var current = svg.select("#plot").select('text#'+BarID).datum()
+
+                        svg.select("#plot").selectAll('text')
+                        .text((d,i) => {
+                            var divergence = ((d/current-1)*100).toFixed(1);
+                            let textID = 'n'+i
+
+                            let text = ''
+                            if (divergence > 0) {text += '+';}
+                            text += divergence;
+                            text += '%';
+                            
+                            if (textID != BarID) {return text;}
+                            return '';
+                        })
+
+                        // show dashline
+                        svg.select('#plot').select('line#'+BarID)
+                            .attr('opacity',1.0)
+
+                        
+                    });
+                svg.select('#plot').selectAll('rect')
+                    .on('mouseout', function(){
+                        d3.select(this).attr('fill', '#43C393');
+                        var BarID = d3.select(this).attr('id')
+                        svg.select("#plot").selectAll('text').text(d=>'$'+d/1000+','+'000');
+                        svg.select('#plot').select('line#'+BarID)
+                            .attr('opacity',0.0);
+                    });
+                
+        </script>
+    </body>
+</html>
